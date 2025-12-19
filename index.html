@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Suratul Kahf – Juma'a</title>
+
+<style>
+html,body{margin:0;padding:0;height:100%;overflow:hidden;font-family:'Segoe UI',Tahoma,sans-serif;background:#000;color:#fff;}
+img{display:block;pointer-events:none;user-select:none;}
+/* Welcome Page */
+.welcome{
+  position:fixed;inset:0;
+  background:linear-gradient(rgba(0,0,0,.7),rgba(0,0,0,.7)),url('quran.jpg');
+  background-size:cover;background-position:center;
+  display:flex;align-items:center;justify-content:center;text-align:center;z-index:10;
+}
+.welcome-box{padding:40px 35px;max-width:700px;background:rgba(255,255,255,.08);border-radius:25px;backdrop-filter:blur(8px);}
+.welcome-box h1{font-size:2.8rem;margin-bottom:15px;font-weight:700;color:#fff;text-shadow:0 0 10px rgba(0,0,0,.6);}
+.arabic{font-size:1.6rem;direction:rtl;margin:20px 0 30px;font-family:'Amiri','Scheherazade',serif;color:#ffd700;text-shadow:0 0 8px rgba(0,0,0,.7);}
+.start-btn{display:inline-block;padding:16px 38px;background:linear-gradient(135deg,#0d6b4a,#28a745);border-radius:50px;color:#fff;text-decoration:none;font-size:1.1rem;font-weight:600;box-shadow:0 5px 15px rgba(0,0,0,.3);transition:transform .2s ease;}
+.start-btn:hover{transform:scale(1.05);box-shadow:0 8px 20px rgba(0,0,0,.5);}
+.credit{margin-top:25px;font-size:.9rem;opacity:.85;color:#ccc;}
+
+/* Slider with realistic page flip */
+.slider{position:relative;width:100vw;height:100vh;perspective:1800px;}
+.page{
+  position:absolute;top:0;left:0;width:100%;height:100%;
+  backface-visibility:hidden;transform-style:preserve-3d;
+  transition:transform .8s cubic-bezier(.4,0,.2,1),box-shadow .8s ease;
+  border-radius:0 15px 15px 0; /* Slight curve on edge */
+  overflow:hidden;
+}
+.page img{width:100%;height:100%;object-fit:contain;display:block;}
+.page.active{transform:rotateY(0deg);z-index:2;box-shadow:0 0 60px rgba(0,0,0,.5);}
+.page.prev{transform:rotateY(180deg);z-index:1;box-shadow:-20px 0 60px rgba(0,0,0,.4);}
+.page.next{transform:rotateY(-180deg);z-index:1;box-shadow:20px 0 60px rgba(0,0,0,.4);}
+
+/* UI */
+.hint{position:fixed;bottom:15px;width:100%;text-align:center;color:#ccc;font-size:.9rem;z-index:5;}
+.zoom-hint{position:fixed;bottom:45px;width:100%;text-align:center;color:#aaa;font-size:.85rem;z-index:6;}
+.progress{position:fixed;top:0;left:0;height:4px;width:0%;background:#0d6b4a;z-index:20;transition:width .3s ease;}
+.theme-toggle{position:fixed;top:15px;left:15px;z-index:20;background:rgba(0,0,0,.4);color:#fff;border:none;padding:6px 14px;border-radius:20px;font-size:.85rem;cursor:pointer;}
+body.light{background:#f7f7f7;color:#111;}
+body.light .hint,.light #indicator{color:#111;background:rgba(255,255,255,.7);}
+body.light .theme-toggle{background:rgba(255,255,255,.5);color:#000;}
+#indicator{position:fixed;top:15px;right:20px;color:#fff;font-size:.95rem;z-index:5;background:rgba(0,0,0,.4);padding:6px 14px;border-radius:20px;}
+</style>
+</head>
+<body>
+
+<div class="progress" id="progress"></div>
+<button class="theme-toggle" onclick="toggleTheme()">Dark / Light</button>
+
+<!-- WELCOME -->
+<div class="welcome" id="welcome">
+  <div class="welcome-box">
+    <h1>Suratul Kahf</h1>
+    <div class="arabic">﴿ مَن قَرَأَ سُورَةَ الْكَهْفِ يَوْمَ الْجُمُعَةِ أَضَاءَ لَهُ مِنَ النُّورِ ﴾</div>
+    <a href="#" class="start-btn" onclick="startReading()">Click here to recite Suratul Kahf now</a>
+    <div class="credit">Developed by Abdullahi Muhammad Tukur (Emteey)</div>
+  </div>
+</div>
+
+<!-- SLIDER -->
+<div class="slider" id="slider">
+  <div class="page active"><img src="page1.jpg"></div>
+  <div class="page next"><img src="page2.jpg"></div>
+  <div class="page next"><img src="page3.jpg"></div>
+  <div class="page next"><img src="page4.jpg"></div>
+  <div class="page next"><img src="page5.jpg"></div>
+  <div class="page next"><img src="page6.jpg"></div>
+  <div class="page next"><img src="page7.jpg"></div>
+  <div class="page next"><img src="page8.jpg"></div>
+  <div class="page next"><img src="page9.jpg"></div>
+  <div class="page next"><img src="page10.jpg"></div>
+  <div class="page next"><img src="page11.jpg"></div>
+  <div class="page next"><img src="page12.jpg"></div>
+</div>
+
+<div class="hint">Swipe right ➜ left to continue</div>
+<div class="zoom-hint">Double tap to zoom • Pinch to zoom</div>
+<div id="indicator">1 / 12</div>
+
+<script>
+let index=0,startX=0,lastTap=0,scale=1;
+const pages=document.querySelectorAll('.page');
+const indicator=document.getElementById('indicator');
+
+function startReading(){
+  document.getElementById('welcome').style.display='none';
+  document.documentElement.requestFullscreen?.();
+  showPage();
+}
+
+function showPage(){
+  pages.forEach((p,i)=>{
+    p.classList.remove('active','prev','next');
+    if(i===index)p.classList.add('active');
+    else if(i<index)p.classList.add('prev');
+    else p.classList.add('next');
+  });
+  indicator.innerText=(index+1)+' / 12';
+  document.getElementById('progress').style.width=((index+1)/12*100)+'%';
+  applyZoom();
+}
+
+function next(){if(index<pages.length-1){index++;scale=1;showPage();}}
+function prev(){if(index>0){index--;scale=1;showPage();}}
+function applyZoom(){pages[index].querySelector('img').style.transform=`scale(${scale})`;}
+
+// DOUBLE TAP ZOOM
+document.addEventListener('touchend',e=>{
+  const now=Date.now();
+  if(now-lastTap<300){ scale=scale===1?2:1; applyZoom();}
+  lastTap=now;
+});
+
+// TOUCH SWIPE (dama → hagu = next)
+document.addEventListener('touchstart',e=>startX=e.touches[0].clientX);
+document.addEventListener('touchend',e=>{
+  const diff=e.changedTouches[0].clientX-startX;
+  if(diff<-50) next(); else if(diff>50) prev();
+});
+
+// MOUSE DRAG
+let isDragging=false;
+document.addEventListener('mousedown',e=>{isDragging=true;startX=e.clientX;});
+document.addEventListener('mouseup',e=>{
+  if(!isDragging) return;
+  isDragging=false;
+  const diff=e.clientX-startX;
+  if(diff<-50) next(); else if(diff>50) prev();
+});
+
+// KEYBOARD
+document.addEventListener('keydown',e=>{
+  if(e.key==='ArrowRight') next();
+  if(e.key==='ArrowLeft') prev();
+});
+
+// THEME TOGGLE
+function toggleTheme(){document.body.classList.toggle('light');}
+</script>
+</body>
+</html>
